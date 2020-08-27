@@ -113,10 +113,10 @@ echo -e "你的激活服务运行在 \n${red}http://$ip:$flaskport/$flaskroute $
 
 #驻守服务
 echo '#!/bin/bash' > flask_iptables_manager.sh
-echo 'cGlkPWBwcyAtYXV4IHwgZ3JlcCAicHl0aG9uIGZsYXNrX2FjdGl2ZV9zZXJ2aWNlLnB5IiB8IGdyZXAgLXYgImdyZXAiIHwgYXdrICd7cHJpbnQgJDJ9J2AK' | base64 -d >> flask_iptables_manager.sh
+echo 'cGlkPWBwcyAtYXV4IHwgZ3JlcCAicHl0aG9uIGZsYXNrX2lwdGFibGVzX21hbmFnZXIucHkiIHwgZ3JlcCAtdiAiZ3JlcCIgfCBhd2sgJ3twcmludCAkMn0nYAo=' | base64 -d >> flask_iptables_manager.sh
 echo '[[ -n $pid ]] && kill -9 $pid && echo "已杀死旧进程 $pid"' >> flask_iptables_manager.sh
 echo "nohup python flask_iptables_manager.py $flaskport $flaskroute > /dev/null 2>&1 &" >> flask_iptables_manager.sh
-echo 'cGlkPWBwcyAtYXV4IHwgZ3JlcCAicHl0aG9uIGZsYXNrX2FjdGl2ZV9zZXJ2aWNlLnB5IiB8IGdyZXAgLXYgImdyZXAiIHwgYXdrICd7cHJpbnQgJDJ9J2AK' | base64 -d >> flask_iptables_manager.sh
+echo 'cGlkPWBwcyAtYXV4IHwgZ3JlcCAicHl0aG9uIGZsYXNrX2lwdGFibGVzX21hbmFnZXIucHkiIHwgZ3JlcCAtdiAiZ3JlcCIgfCBhd2sgJ3twcmludCAkMn0nYAo=' | base64 -d >> flask_iptables_manager.sh
 echo 'echo "服务运行pid: $pid"' >> flask_iptables_manager.sh
 chmod +x flask_iptables_manager.sh
 bash flask_iptables_manager.sh
