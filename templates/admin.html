@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/5.0.0-alpha1/js/bootstrap.min.js"></script> -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <title>flask_iptables_manager</title>
+    <style>
+      .box {
+        width: 80%;
+        margin: 50px auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+        <div>
+            <button type="button" class="btn btn-small btn-success" data-toggle="modal" data-target="#addRun" >新增放行规则</button>&nbsp;
+            <button type="button" class="btn btn-small btn-danger" data-toggle="modal" data-target="#DelAllPortRules">清空端口放行</button>&nbsp;
+            <button type="button" class="btn btn-small btn-danger" data-toggle="modal" data-target="#DelAllIpRules">清空IP放行</button>
+            当前默认规则：<code>{{ default }} {% if 'ACCEPT' in default %} </code><span class="label label-danger">默认接受所有请求，防火墙功能未开启</span> {% else %}  <span class="label label-success">默认屏蔽所有请求，防火墙功能已开启</span> 
+ {% endif %}<!--【不显示当前Flask服务端口与SSH服务端口】-->
+            <span style="float: right;padding-right: 20px;">#by yumusb</span>
+            
+        </div>
+        
+      <table class="table table-hover">
+          
+        <thead>
+            
+          <tr>
+            <th scope="col">#num</th>
+            <!--<th scope="col">数据包[pkts]</th>-->
+            <!--<th scope="col">字节数[bytes]</th>-->
+            <th scope="col">数据包[pkts]/字节数[bytes]</th>
+            <th scope="col">处理动作[target]</th>
+            <th scope="col">协议[prot]</th>
+            <!--<th scope="col">opt</th>-->
+            <!--<th scope="col">in</th>-->
+            <!--<th scope="col">out</th>-->
+            <th scope="col">源地址[source]</th>
+            <th scope="col">目的地址[destination]</th>
+            <th scope="col">其他</th>
+            <th scope="col">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for c in iptables %}
+                {% if c|length > 5%}
+                <tr>
+                    {% set num = c.split(" ")[0] %}
+                    {% set c = c[num|length:].strip() %}
+                    <th scope="row"> {{ num }} </th>
+                    
+                    {% set pkts = c.split(" ")[0] %}
+                    {% set c = c[pkts|length:].strip() %}
+                    <!--<td> {{ pkts }} </td>-->
+                    
+                    {% set bytes = c.split(" ")[0] %}
+                    {% set c = c[bytes|length:].strip() %}
+                    <!--<td> {{ bytes }} </td>-->
+                    
+                    <td> {{ pkts }} / {{ bytes }} </td>
+                    
+                    {% set target = c.split(" ")[0] %}
+                    {% set c = c[target|length:].strip() %}
+                    <td> {{ target }} </td>
+                    {% set prot = c.split(" ")[0] %}
+                    {% set c = c[prot|length:].strip() %}
+                    <td> {{ prot }} </td>
+                    
+                    <!--{% set opt = c.split(" ")[0] %}-->
+                    <!--{% set c = c[opt|length:].strip() %}-->
+                    <!--<td> {{ opt }} </td>-->
+                    
+                    <!--{% set in = c.split(" ")[0] %}-->
+                    <!--{% set c = c[in|length:].strip() %}-->
+                    <!--<td> {{ in }} </td>-->
+                    
+                    <!--{% set out = c.split(" ")[0] %}-->
+                    <!--{% set c = c[out|length:].strip() %}-->
+                    <!--<td> {{ out }} </td>-->
+                    
+                    {% set source = c.split(" ")[0] %}
+                    {% set c = c[source|length:].strip() %}
+                    <td> {{ source }} </td>
+                    {% set destination = c.split(" ")[0] %}
+                    {% set c = c[destination|length:].strip() %}
+                    <td> {{ destination }} </td>
+                    {% set other = c.split("  ")[0] %}
+                    {% set c = c[other|length:].strip() %}
+                    <td> {{ other }} </td>
+                    <td>{%if "默认规则" in other %} 禁止删除 {% else %}<button type="button" class="btn btn-small btn-danger" onclick="del({{ num }})">删除</button>{% endif %}</td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+          <!--<tr>-->
+          <!--  <th scope="row">1</th>-->
+          <!--  <td>Mark</td>-->
+          <!--  <td>Otto</td>-->
+          <!--  <td>@mdo</td>-->
+          <!--</tr>-->
+          <!--<tr>-->
+          <!--  <th scope="row">2</th>-->
+          <!--  <td>Jacob</td>-->
+          <!--  <td>Thornton</td>-->
+          <!--  <td>@fat</td>-->
+          <!--</tr>-->
+          <!--<tr>-->
+          <!--  <th scope="row">3</th>-->
+          <!--  <td colspan="2">Larry the Bird</td>-->
+          <!--  <td>@twitter</td>-->
+          <!--</tr>-->
+        </tbody>
+      </table>
+    </div>
+
+    <div
+      class="modal fade"
+      id="addRun"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="addRunLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-hidden="true"
+            >
+              &times;
+            </button>
+            <h4 class="modal-title" id="addRunLabel">添加放行规则</h4>
+          </div>
+          <div class="modal-body">
+            
+            <div class="form-group">
+              <label for="address">规则内容</label>
+              <input type="text" class="form-control" id="address" placeholder="请输入IP地址或者端口号">
+            </div>
+          
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+              关闭
+            </button>
+            <button type="button" class="btn btn-primary" onclick="add()">提交</button>
+          </div>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+      <!-- /.modal -->
+    </div>
+    <div class="modal fade" id="DelAllPortRules" tabindex="-1" role="dialog" aria-labelledby="DelAllPortRulesLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+              &times;
+            </button>
+            <h4 class="modal-title" id="DelAllPortRulesLabel">
+              清空端口放行
+            </h4>
+          </div>
+          <div class="modal-body">
+            将会清空当前所有的端口放行规则，（SSH与本服务的端口除外），是否继续？
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+            </button>
+            <button type="button" class="btn btn-primary" onclick="DelAllPortRules()">
+              提交
+            </button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal -->
+    </div>
+    
+    <div class="modal fade" id="DelAllIpRules" tabindex="-1" role="dialog" aria-labelledby="DelAllIpRulesLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+              &times;
+            </button>
+            <h4 class="modal-title" id="DelAllIpRulesLabel">
+              清空IP放行
+            </h4>
+          </div>
+          <div class="modal-body">
+            将会清空当前所有的IP放行规则，（不会删除当前客户端IP）是否继续？
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+            </button>
+            <button type="button" class="btn btn-primary" onclick="DelAllIpRules()">
+              提交
+            </button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal -->
+    </div>
+    
+    <script>
+        function del(id){
+            //console.log(id);
+            $.ajax({
+					type: "post",
+					url: "./del/",
+					dataType: "json",
+					data: {"id":id},
+					async:true,
+					success: function(res) {
+						if (res.status == 0) {
+							alert("删除成功");
+							window.location.reload();
+						} else {
+							alert(res.result);
+						}
+
+					},
+					error: function(a) {
+						alert("失败,请检查关键字。");
+					}
+				});
+        }
+        function add(){
+            //console.log(id);
+            ip = $("#address").val();
+            $.ajax({
+					type: "post",
+					url: "./add/",
+					dataType: "json",
+					data: {"ip":ip},
+					async:true,
+					success: function(res) {
+						if (res.status == 0) {
+							alert("添加成功");
+							window.location.reload();
+						} else {
+							alert(res.result);
+						}
+
+					},
+					error: function(a) {
+						alert("失败,请检查关键字。");
+					}
+				});
+        }
+        function DelAllPortRules(){
+            //console.log(id);
+            //ip = $("#address").val();
+            $.ajax({
+					type: "post",
+					url: "./DelAllPortRules/",
+					dataType: "json",
+					async:true,
+					success: function(res) {
+						if (res.status == 0) {
+							alert("清空成功");
+							window.location.reload();
+						} else {
+							alert(res.result);
+						}
+
+					},
+					error: function(a) {
+						alert("失败,请检查关键字。");
+					}
+				});
+        }
+        function DelAllIpRules(){
+            
+            $.ajax({
+					type: "post",
+					url: "./DelAllIpRules/",
+					dataType: "json",
+					async:true,
+					success: function(res) {
+						if (res.status == 0) {
+							alert("清空成功");
+							window.location.reload();
+						} else {
+							alert(res.result);
+						}
+
+					},
+					error: function(a) {
+						alert("失败,请检查关键字。");
+					}
+				});
+            
+        }
+    </script>
+  </body>
+</html>
