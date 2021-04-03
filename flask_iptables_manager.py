@@ -112,7 +112,7 @@ def admin_add():
     if(ip.split(".")[0]==ip):
         port = int(ip)
         if(port in range(1,65535)):
-            existed = os.popen("iptables -L INPUT -n | grep dpt:%s" % (port)).read()
+            existed = os.popen("iptables -L INPUT -n | grep dpt:%s " % (port)).read()
             if(len(existed.strip())==0):
                 status,result = commands.getstatusoutput("iptables -I INPUT -p tcp --dport %s -m state --state NEW -j ACCEPT -m comment --comment \"`date`\" &> /dev/null" % (port))
                 data = {'status':str(status),'result':result}
