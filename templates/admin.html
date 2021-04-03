@@ -235,12 +235,12 @@
         }
         function add(){
             //console.log(id);
-            ip = $("#address").val();
+            p = $("#address").val();
             $.ajax({
 					type: "post",
 					url: "./add/",
 					dataType: "json",
-					data: {"ip":ip},
+					data: {"p":p},
 					async:true,
 					success: function(res) {
 						if (res.status == 0) {

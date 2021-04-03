@@ -70,10 +70,14 @@ $cmd install python-pip -y
 $cmd install iptables -y
 $cmd install git -y
 python -m pip install flask
-cd ~ 
+
+if [ -z $HOME ]; then
+  export HOME=~
+fi
+cd $HOME
+rm -rf flask_iptables_manager
 down_file
 cd flask_iptables_manager
-#wget https://raw.githubusercontent.com/yumusb/flask_iptables_manager/master/flask_iptables_manager.py 
 
 # 配置 iptables
 iptables -P INPUT ACCEPT
@@ -112,11 +116,24 @@ LOCAL_IP=$(ip addr | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
 echo -e "你的激活服务运行在 \n${red}http://$ip:$flaskport/$flaskroute ${none}\n${green}http://$LOCAL_IP:$flaskport/$flaskroute ${none}" 
 
 #驻守服务
-echo '#!/bin/bash' > flask_iptables_manager.sh
-echo 'cGlkPWBwcyAtYXV4IHwgZ3JlcCAicHl0aG9uIGZsYXNrX2lwdGFibGVzX21hbmFnZXIucHkiIHwgZ3JlcCAtdiAiZ3JlcCIgfCBhd2sgJ3twcmludCAkMn0nYAo=' | base64 -d >> flask_iptables_manager.sh
-echo '[[ -n $pid ]] && kill -9 $pid && echo "已杀死旧进程 $pid"' >> flask_iptables_manager.sh
-echo "nohup python flask_iptables_manager.py $flaskport $flaskroute > /dev/null 2>&1 &" >> flask_iptables_manager.sh
-echo 'cGlkPWBwcyAtYXV4IHwgZ3JlcCAicHl0aG9uIGZsYXNrX2lwdGFibGVzX21hbmFnZXIucHkiIHwgZ3JlcCAtdiAiZ3JlcCIgfCBhd2sgJ3twcmludCAkMn0nYAo=' | base64 -d >> flask_iptables_manager.sh
-echo 'echo "服务运行pid: $pid"' >> flask_iptables_manager.sh
-chmod +x flask_iptables_manager.sh
-bash flask_iptables_manager.sh
+
+sed -i 's/yourport/$flaskport/' manager.sh
+sed -i 's/yourpath/$flaskroute/' manager.sh
+
+chmod +x manager.sh
+bash manager.sh
+cat >/tmp/iptables_manager.service <<EOL
+[Unit]
+Description=Help to create iptables
+[Service]
+ExecStart=$HOME/flask_iptables_manager/manager.sh
+Restart=always
+Nice=10
+CPUWeight=1
+[Install]
+WantedBy=multi-user.target
+EOL
+sudo mv /tmp/iptables_manager.service /etc/systemd/system/iptables_manager.service
+sudo systemctl daemon-reload
+sudo systemctl enable iptables_manager.service
+sudo systemctl start iptables_manager.service
