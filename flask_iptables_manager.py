@@ -32,7 +32,7 @@ def hello_index():
     ip = request.remote_addr
     existed = os.popen("iptables -L | grep '%s'" % (ip)).read()
     if(len(existed.strip())==0):
-        os.popen("iptables -A INPUT -s %s -j ACCEPT -m comment --comment \"`date`\" &> /dev/null" % (ip))
+        os.popen("iptables -A INPUT -s %s -j ACCEPT -m comment --comment \"`date '+%Y_%m_%d %H:%M:%S'`\" &> /dev/null" % (ip))
         return ip+" add success"
     else:
         return ip+" existed"
@@ -76,11 +76,11 @@ def admin_add():
         if(("." not in p) and int(p) in range(1,65535)):
             existed = os.popen("iptables -L INPUT -n | grep \"dpt:%s \" " % p).read()
             if(len(existed.strip())==0):
-                base_commands.append("iptables -I INPUT -p tcp --dport %s -m state --state NEW -j ACCEPT -m comment --comment \"`date`\" &> /dev/null" % p)
+                base_commands.append("iptables -I INPUT -p tcp --dport %s -m state --state NEW -j ACCEPT -m comment --comment \"`date '+%Y_%m_%d %H:%M:%S'`\" &> /dev/null" % p)
         elif(pattern.match(p)!=None):
             existed = os.popen("iptables -L INPUT -n | grep '%s'" % p).read()
             if(len(existed.strip())==0):
-                base_commands.append("iptables -A INPUT -s %s -j ACCEPT -m comment --comment \"`date`\" &> /dev/null" % p)
+                base_commands.append("iptables -A INPUT -s %s -j ACCEPT -m comment --comment \"`date '+%Y_%m_%d %H:%M:%S'`\" &> /dev/null" % p)
     if(len(base_commands)>0):
         status,result = commands.getstatusoutput(";".join(base_commands))
         data = {'status':str(status),'result':result}
