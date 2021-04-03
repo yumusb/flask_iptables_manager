@@ -18,7 +18,7 @@ FLASK_PORT = int(sys.argv[1]) # 运行的端口
 
 
 if(len(os.popen("iptables -nL | grep dpt:%s" % (FLASK_PORT)).read().strip())==0):
-    os.popen('iptables -I INPUT -p tcp --dport %s -m state --state NEW -j ACCEPT -m comment --comment "Flask验证服务端口，默认规则"' % (FLASK_PORT))
+    os.popen('iptables -I INPUT --dport %s -j ACCEPT -m comment --comment "Flask验证服务端口，默认规则"' % (FLASK_PORT))
     
 FLASK_PATH = '/%s' % (sys.argv[2].strip()) # 运行的route
 app = Flask(__name__)
@@ -76,7 +76,7 @@ def admin_add():
         if(("." not in p) and int(p) in range(1,65535)):
             existed = os.popen("iptables -L INPUT -n | grep \"dpt:%s \" " % p).read()
             if(len(existed.strip())==0):
-                base_commands.append("iptables -I INPUT -p tcp --dport {0} -m state --state NEW -j ACCEPT -m comment --comment \"`date '+%Y_%m_%d %H:%M:%S'`\" &> /dev/null".format(p))
+                base_commands.append("iptables -I INPUT --dport {0} -j ACCEPT -m comment --comment \"`date '+%Y_%m_%d %H:%M:%S'`\" &> /dev/null".format(p))
         elif(pattern.match(p)!=None):
             existed = os.popen("iptables -L INPUT -n | grep '%s'" % p).read()
             if(len(existed.strip())==0):
