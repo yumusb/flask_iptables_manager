@@ -88,7 +88,7 @@ sshport=`netstat -ntlp | awk '!a[$NF]++ && $NF~/sshd$/{sub (".*:","",$4);print $
 if [ -z "$sshport" ]; then
     echo -e "没获取到你小鸡的${red} ssh服务 ${none}端口哦！为了防止机器失连，脚本退出~ ${yellow}~(^_^) ${none}" && exit 1
 fi
-iptables -I INPUT -p tcp --dport $sshport -m state --state NEW -j ACCEPT -m comment --comment "ssh服务端口，默认规则"
+iptables -I INPUT --dport $sshport -j ACCEPT -m comment --comment "ssh服务端口，默认规则"
 echo -e "获取到你小鸡的${red} ssh ${none}运行端口在 ${yellow}$sshport ${none}，已经加白~"
 
 #把SSH历史登录IP加白
@@ -107,7 +107,7 @@ iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT -m comment --c
 #flask服务端口
 echo "你的验证服务将要运行在哪个端口？[0-65535]"
 read flaskport
-iptables -I INPUT -p tcp --dport $flaskport -m state --state NEW -j ACCEPT -m comment --comment "Flask验证服务端口，默认规则"
+iptables -I INPUT --dport $flaskport -j ACCEPT -m comment --comment "Flask验证服务端口，默认规则"
 echo "[+]-----------[+]"
 #获取路径 
 flaskroute=`date +%s%N | md5sum | head -c 8`
