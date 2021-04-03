@@ -68,7 +68,7 @@ def DelAllIpRules():
 @app.route(FLASK_PATH+"/admin/add/",methods=['POST'])
 def admin_add():
     param = request.form['p']
-    params = params.split(",")
+    params = param.split(",")
     commands = []
     pattern = re.compile(r'^(?:(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([1-9]|[1-2]\d|3[0-2])){0,1}$')
     for p in params:
