@@ -117,8 +117,8 @@ echo -e "你的激活服务运行在 \n${red}http://$ip:$flaskport/$flaskroute $
 
 #驻守服务
 
-sed -i 's/yourport/$flaskport/' manager.sh
-sed -i 's/yourpath/$flaskroute/' manager.sh
+sed -i "s/yourport/$flaskport/" manager.sh
+sed -i "s/yourpath/$flaskroute/" manager.sh
 
 chmod +x manager.sh
 bash manager.sh
