@@ -69,20 +69,20 @@ def DelAllIpRules():
 def admin_add():
     param = request.form['p']
     params = param.split(",")
-    commands = []
+    base_commands = []
     pattern = re.compile(r'^(?:(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([1-9]|[1-2]\d|3[0-2])){0,1}$')
     for p in params:
         p = p.strip()
         if(("." not in p) and int(p) in range(1,65535)):
             existed = os.popen("iptables -L INPUT -n | grep \"dpt:%s \" " % p).read()
             if(len(existed.strip())==0):
-                commands.append("iptables -I INPUT -p tcp --dport %s -m state --state NEW -j ACCEPT -m comment --comment \"`date`\" &> /dev/null" % p)
+                base_commands.append("iptables -I INPUT -p tcp --dport %s -m state --state NEW -j ACCEPT -m comment --comment \"`date`\" &> /dev/null" % p)
         elif(pattern.match(p)!=None):
             existed = os.popen("iptables -L INPUT -n | grep '%s'" % p).read()
             if(len(existed.strip())==0):
-                commands.append("iptables -A INPUT -s %s -j ACCEPT -m comment --comment \"`date`\" &> /dev/null" % p)
-    if(len(commands)>0):
-        status,result = commands.getstatusoutput(";".join(commands))
+                base_commands.append("iptables -A INPUT -s %s -j ACCEPT -m comment --comment \"`date`\" &> /dev/null" % p)
+    if(len(base_commands)>0):
+        status,result = commands.getstatusoutput(";".join(base_commands))
         data = {'status':str(status),'result':result}
     else:
         data = {'status':str(999),'result':"参数有问题"}
