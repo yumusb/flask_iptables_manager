@@ -69,7 +69,7 @@ $cmd install wget -y
 $cmd install python-pip -y
 $cmd install iptables -y
 $cmd install git -y
-pip install flask
+python -m pip install flask
 cd ~ 
 down_file
 cd flask_iptables_manager
