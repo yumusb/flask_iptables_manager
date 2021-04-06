@@ -30,7 +30,7 @@ def index():
 @app.route(FLASK_PATH)
 def hello_index():
     ip = request.remote_addr
-    existed = os.popen("iptables -L | grep '%s'" % (ip)).read()
+    existed = os.popen("iptables -nL | grep '%s'" % (ip)).read()
     if(len(existed.strip())==0):
         os.popen("iptables -A INPUT -s {0} -j ACCEPT -m comment --comment \"`date '+%Y_%m_%d %H:%M:%S'`\" &> /dev/null" .format(ip))
         return ip+" add success"
