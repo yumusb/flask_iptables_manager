@@ -121,7 +121,8 @@ flaskroute=`date +%s%N | md5sum | head -c 8`
 get_ip
 LOCAL_IP=$(ip addr | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -E -v "^127\.|^255\.|^0\." | head -n 1)
 echo -e "你的激活服务运行在 \n${red}http://$ip:$flaskport/$flaskroute ${none}\n${green}http://$LOCAL_IP:$flaskport/$flaskroute ${none}" 
-
+echo "http://$ip:$flaskport/$flaskroute \n http://$LOCAL_IP:$flaskport/$flaskroute" > url.txt
+rm run.sh
 #驻守服务
 
 sed -i "s/yourport/$flaskport/" manager.sh
@@ -144,3 +145,5 @@ sudo mv /tmp/iptables_manager.service /etc/systemd/system/iptables_manager.servi
 sudo systemctl daemon-reload
 sudo systemctl enable iptables_manager.service
 sudo systemctl start iptables_manager.service
+
+rm $0
