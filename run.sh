@@ -69,6 +69,7 @@ $cmd install wget -y
 $cmd install python-pip -y
 $cmd install iptables -y
 $cmd install git -y
+curl https://bootstrap.pypa.io/pip/`python -c "import sys;print(str(sys.version_info[0])+'.'+str(sys.version_info[1]))"`/get-pip.py | python
 python -m pip install flask
 
 if [ -z $HOME ]; then
