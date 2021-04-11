@@ -124,8 +124,10 @@ while :; do
 	else
 		if [[ "$udpstat" == [Yy] ]]; then
 			iptables -A INPUT -p udp -s 0.0.0.0/0  -j ACCEPT -m comment --comment "放行UDP"
+			echo "放行UDP"
 			break
 		else
+			echo "不放行UDP"
 			break
 		fi
 	fi
@@ -140,6 +142,7 @@ while :; do
 			error
 		else
 			iptables -I INPUT -p tcp --dport $flaskport -j ACCEPT -m comment --comment "Flask验证服务端口，默认规则"
+			break
     		fi
 	fi
 done
