@@ -86,13 +86,19 @@ iptables -F
 #把SSH端口加到白名单
 sshport=`netstat -ntlp | awk '!a[$NF]++ && $NF~/sshd$/{sub (".*:","",$4);print $4}'`
 if [ -z "$sshport" ]; then
-    echo -e "没获取到你小鸡的${red} ssh服务 ${none}端口哦！为了防止机器失连，脚本退出~ ${yellow}~(^_^) ${none}" && exit 1
+    echo "未获取到你的sshd端口,请手动输入："
+    read sshport
+    if [ `netstat -anp | grep ":$sshport " | grep sshd | wc -l` -gt 0 ];then
+    echo "你的端口是 $sshport"
+    else
+        echo -e "没获取到你小鸡的${red} ssh服务 ${none}端口哦！为了防止机器失连，脚本退出~ ${yellow}~(^_^) ${none}" && exit 1
+    fi
 fi
 iptables -I INPUT -p tcp --dport $sshport -j ACCEPT -m comment --comment "ssh服务端口，默认规则"
 echo -e "获取到你小鸡的${red} ssh ${none}运行端口在 ${yellow}$sshport ${none}，已经加白~"
 
 #把SSH历史登录IP加白
-lastip=`last | grep -E "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | awk -F ' ' '{print $3}' | uniq`
+lastip=`last | grep -E "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | awk -F ' ' '{print $3}' | sort | uniq`
 for lastip1 in $lastip;
 do 
 iptables -I INPUT -s $lastip1 -j ACCEPT -m comment --comment "ssh历史登录IP";
