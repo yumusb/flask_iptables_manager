@@ -43,7 +43,8 @@ get_ip() {
 down_file() {
 	#BASE_URL="https://gitee.com/yumusb/flask_iptables_manager/raw/master/"
 	#files=[]
-	git clone "https://gitee.com/yumusb/flask_iptables_manager.git"
+	if [ `curl https://ipinfo.io/country` = "CN" ];then gitserver="https://gitee.com";else gitserver="https://github.com";fi
+	git clone "$gitserver/yumusb/flask_iptables_manager.git"
 }
 
 #检查是否root用户
