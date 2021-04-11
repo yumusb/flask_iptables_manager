@@ -5,7 +5,11 @@ yellow='\e[93m'
 magenta='\e[95m'
 cyan='\e[96m'
 none='\e[0m'
+error() {
 
+	echo -e "\n$red 输入错误！$none\n"
+
+}
 #删除所有IP规则
 rm_ip_rules() {
     tables=$(iptables -nL INPUT --line-numbers | grep -v "0.0.0.0/0            0.0.0.0/0" | grep -E "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"  | awk -F ' ' '{print $1}' | tac)
@@ -92,7 +96,7 @@ if [ -z "$sshport" ]; then
     echo "未获取到你的sshd端口,请手动输入："
     read sshport
     if [ `netstat -anp | grep ":$sshport " | grep sshd | wc -l` -gt 0 ];then
-    echo "你的端口是 $sshport"
+    	echo "你的端口是 $sshport"
     else
         echo -e "没获取到你小鸡的${red} ssh服务 ${none}端口哦！为了防止机器失连，脚本退出~ ${yellow}~(^_^) ${none}" && exit 1
     fi
@@ -113,17 +117,38 @@ iptables -P INPUT DROP
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT -m comment --comment "默认规则"
 iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT -m comment --comment "默认规则"
 
-#flask服务端口
-echo "你的验证服务将要运行在哪个端口？[0-65535]"
-read flaskport
-iptables -I INPUT -p tcp --dport $flaskport -j ACCEPT -m comment --comment "Flask验证服务端口，默认规则"
-echo "[+]-----------[+]"
+while :; do
+	read -p "$(echo -e "(是否放行UDP?[y/n]") " udpstat
+	if [[ -z "$udpstat" ]]; then
+		error
+	else
+		if [[ "$udpstat" == [Yy] ]]; then
+			iptables -A INPUT -p udp -s 0.0.0.0/0  -j ACCEPT -m comment --comment "放行UDP"
+			break
+		else
+			break
+		fi
+	fi
+done
+
+while :; do
+	read -p "$(echo -e "(你的验证服务将要运行在哪个端口？[1000-65535]") " flaskport
+	if [[ -z "$flaskport" ]]; then
+		error
+	else
+		if [[ $flaskport -gt 65534 || $flaskport -lt 1000 ]]; then
+			error
+		else
+			iptables -I INPUT -p tcp --dport $flaskport -j ACCEPT -m comment --comment "Flask验证服务端口，默认规则"
+    		fi
+	fi
+done
 #获取路径 
 flaskroute=`date +%s%N | md5sum | head -c 8`
 get_ip
 LOCAL_IP=$(ip addr | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -E -v "^127\.|^255\.|^0\." | head -n 1)
 echo -e "你的激活服务运行在 \n${red}http://$ip:$flaskport/$flaskroute ${none}\n${green}http://$LOCAL_IP:$flaskport/$flaskroute ${none}" 
-echo "http://$ip:$flaskport/$flaskroute \n http://$LOCAL_IP:$flaskport/$flaskroute" > url.txt
+echo -e "http://$ip:$flaskport/$flaskroute \n http://$LOCAL_IP:$flaskport/$flaskroute" > url.txt
 rm run.sh
 #驻守服务
 
