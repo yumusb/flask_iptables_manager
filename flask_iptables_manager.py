@@ -78,14 +78,14 @@ def admin_add():
             if(("." not in p) and int(p) in range(1,65535)):
                 existed = os.popen("iptables -L INPUT -n | grep \"dpt:%s \" " % p).read()
                 if(len(existed.strip())==0):
-                    base_commands.append("iptables -I INPUT -p tcp --dport {0} -j ACCEPT -m comment --comment \"`date '+%Y_%m_%d %H:%M:%S'`\" &> /dev/null".format(p))
+                    base_commands.append("iptables -I INPUT -p tcp --dport {0} -j ACCEPT -m comment --comment \"`date '+%Y_%m_%d %H:%M:%S'`\"".format(int(p)))
             elif(pattern.match(p)!=None):
                 existed = os.popen("iptables -L INPUT -n | grep '%s'" % p).read()
                 if(len(existed.strip())==0):
-                    base_commands.append("iptables -A INPUT -s {0} -j ACCEPT -m comment --comment \"`date '+%Y_%m_%d %H:%M:%S'`\" &> /dev/null".format(p))
+                    base_commands.append("iptables -A INPUT -s {0} -j ACCEPT -m comment --comment \"`date '+%Y_%m_%d %H:%M:%S'`\"".format(p))
     if(len(base_commands)>0):
         status,result = commands.getstatusoutput(";".join(base_commands))
-        data = {'status':str(status),'result':result}
+        data = {'status':str(status),'result':result,'command':";".join(base_commands)}
     else:
         data = {'status':str(999),'result':"参数有问题"}
     return json.dumps(data)
