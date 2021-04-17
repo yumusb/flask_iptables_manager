@@ -68,21 +68,21 @@ def DelAllIpRules():
 @app.route(FLASK_PATH+"/admin/add/",methods=['POST'])
 def admin_add():
     param = request.form['p']
-    params = param.split(chr(32)) # 空格
-    params = param.split(chr(10)) # 换行
+    params = re.sub('[^\d\.\/]+',',',params)
     params = param.split(",")
     base_commands = []
     pattern = re.compile(r'^(?:(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([1-9]|[1-2]\d|3[0-2])){0,1}$')
     for p in params:
         p = p.strip()
-        if(("." not in p) and int(p) in range(1,65535)):
-            existed = os.popen("iptables -L INPUT -n | grep \"dpt:%s \" " % p).read()
-            if(len(existed.strip())==0):
-                base_commands.append("iptables -I INPUT -p tcp --dport {0} -j ACCEPT -m comment --comment \"`date '+%Y_%m_%d %H:%M:%S'`\" &> /dev/null".format(p))
-        elif(pattern.match(p)!=None):
-            existed = os.popen("iptables -L INPUT -n | grep '%s'" % p).read()
-            if(len(existed.strip())==0):
-                base_commands.append("iptables -A INPUT -s {0} -j ACCEPT -m comment --comment \"`date '+%Y_%m_%d %H:%M:%S'`\" &> /dev/null".format(p))
+        if(len(p)>0):
+            if(("." not in p) and int(p) in range(1,65535)):
+                existed = os.popen("iptables -L INPUT -n | grep \"dpt:%s \" " % p).read()
+                if(len(existed.strip())==0):
+                    base_commands.append("iptables -I INPUT -p tcp --dport {0} -j ACCEPT -m comment --comment \"`date '+%Y_%m_%d %H:%M:%S'`\" &> /dev/null".format(p))
+            elif(pattern.match(p)!=None):
+                existed = os.popen("iptables -L INPUT -n | grep '%s'" % p).read()
+                if(len(existed.strip())==0):
+                    base_commands.append("iptables -A INPUT -s {0} -j ACCEPT -m comment --comment \"`date '+%Y_%m_%d %H:%M:%S'`\" &> /dev/null".format(p))
     if(len(base_commands)>0):
         status,result = commands.getstatusoutput(";".join(base_commands))
         data = {'status':str(status),'result':result}
