@@ -47,7 +47,7 @@ get_ip() {
 down_file() {
 	#BASE_URL="https://gitee.com/yumusb/flask_iptables_manager/raw/master/"
 	#files=[]
-	if [ `curl https://ipinfo.io/country` = "CN" ];then gitserver="https://gitee.com";else gitserver="https://github.com";fi
+	if [ `curl https://api.myip.la/en -s | cut -f2` = "CN" ];then gitserver="https://gitee.com";else gitserver="https://github.com";fi
 	echo "will clone $gitserver/yumusb/flask_iptables_manager.git into local"
 	git clone "$gitserver/yumusb/flask_iptables_manager.git"
 }
