@@ -28,7 +28,7 @@ if(len(os.popen("iptables -nL | grep dpt:%s" % (FLASK_PORT)).read().strip())==0)
 secret = base64.b32encode(sys.argv[2].strip().encode()).decode()
 totp = pyotp.TOTP(secret)
 
-print(pyotp.totp.TOTP(secret).provisioning_uri(issuer_name='Your Server'))
+print(pyotp.totp.TOTP(secret).provisioning_uri(name='admin@youserver.com',issuer_name='Your Server'))
 app = Flask(__name__)
 
 

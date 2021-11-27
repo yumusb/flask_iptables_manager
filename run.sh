@@ -156,9 +156,9 @@ LOCAL_IP=$(ip addr | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
 echo -e "你的激活服务运行在 \n${red}http://$ip:$flaskport/ ${none}\n${green}http://$LOCAL_IP:$flaskport/ ${none}" 
 echo -e "http://$ip:$flaskport/ \n http://$LOCAL_IP:$flaskport/" > url.txt
 
-python3 -c "import pyotp,base64;print(pyotp.totp.TOTP(base64.b32encode('${otptoken}'.strip().encode()).decode()).provisioning_uri(issuer_name='${ip}'))" > otp.txt
+python3 -c "import pyotp,base64;print(pyotp.totp.TOTP(base64.b32encode('${otptoken}'.strip().encode()).decode()).provisioning_uri(name='admin@youserver.com',issuer_name='${ip}'))" > otp.txt
 
-python3 -c "import pyotp,base64;print(pyotp.totp.TOTP(base64.b32encode('${otptoken}'.strip().encode()).decode()).provisioning_uri(issuer_name='${ip}'))"
+python3 -c "import pyotp,base64;print(pyotp.totp.TOTP(base64.b32encode('${otptoken}'.strip().encode()).decode()).provisioning_uri(name='admin@youserver.com',issuer_name='${ip}'))"
 
 rm run.sh
 #驻守服务
