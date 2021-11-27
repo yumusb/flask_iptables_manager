@@ -165,7 +165,7 @@ rm run.sh
 
 sed -i "s/yourport/$flaskport/" manager.sh
 sed -i "s/yourtoken/$otptoken/" manager.sh
-
+mkdir otplog
 chmod +x manager.sh
 bash manager.sh
 cat >/tmp/iptables_manager.service <<EOL
