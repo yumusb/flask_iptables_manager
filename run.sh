@@ -49,7 +49,7 @@ down_file() {
 	#files=[]
 	if [ `curl https://api.myip.la/en -s | cut -f2` = "CN" ];then gitserver="https://gitee.com";else gitserver="https://github.com";fi
 	echo "will clone $gitserver/yumusb/flask_iptables_manager.git into local"
-	git clone "$gitserver/yumusb/flask_iptables_manager.git"
+	git clone -b otp "$gitserver/yumusb/flask_iptables_manager.git"
 }
 
 #检查是否root用户
@@ -72,11 +72,16 @@ fi
 # 环境配置
 $cmd update -y
 $cmd install wget -y
-$cmd install python-pip -y
+$cmd install python3 -y
+$cmd install python3-dev -y
+$cmd install python3-pip -y
 $cmd install iptables -y
 $cmd install git -y
-curl https://bootstrap.pypa.io/pip/`python -c "import sys;print(str(sys.version_info[0])+'.'+str(sys.version_info[1]))"`/get-pip.py | python
-python -m pip install flask
+
+curl https://bootstrap.pypa.io/get-pip.py | python3
+
+python3 -m pip install -r requirement.txt
+
 
 if [ -z $HOME ]; then
   export HOME=~
@@ -146,17 +151,22 @@ while :; do
     		fi
 	fi
 done
-#获取路径 
-flaskroute=`date +%s%N | md5sum | head -c 8`
+#获取otptoken
+otptoken=`date +%s%N | md5sum | head -c 8`
 get_ip
 LOCAL_IP=$(ip addr | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -E -v "^127\.|^255\.|^0\." | head -n 1)
-echo -e "你的激活服务运行在 \n${red}http://$ip:$flaskport/$flaskroute ${none}\n${green}http://$LOCAL_IP:$flaskport/$flaskroute ${none}" 
-echo -e "http://$ip:$flaskport/$flaskroute \n http://$LOCAL_IP:$flaskport/$flaskroute" > url.txt
+echo -e "你的激活服务运行在 \n${red}http://$ip:$flaskport/ ${none}\n${green}http://$LOCAL_IP:$flaskport/ ${none}" 
+echo -e "http://$ip:$flaskport/ \n http://$LOCAL_IP:$flaskport/" > url.txt
+
+python3 -c "import pyotp,base64;print(pyotp.totp.TOTP(base64.b32encode('${otptoken}'.strip().encode()).decode()).provisioning_uri(issuer_name='${ip}'))" > otp.txt
+
+python3 -c "import pyotp,base64;print(pyotp.totp.TOTP(base64.b32encode('${otptoken}'.strip().encode()).decode()).provisioning_uri(issuer_name='${ip}'))"
+
 rm run.sh
 #驻守服务
 
 sed -i "s/yourport/$flaskport/" manager.sh
-sed -i "s/yourpath/$flaskroute/" manager.sh
+sed -i "s/yourtoken/$otptoken/" manager.sh
 
 chmod +x manager.sh
 bash manager.sh
