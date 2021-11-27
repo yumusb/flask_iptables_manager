@@ -79,10 +79,6 @@ $cmd install iptables -y
 $cmd install git -y
 
 curl https://bootstrap.pypa.io/get-pip.py | python3
-
-python3 -m pip install -r requirement.txt
-
-
 if [ -z $HOME ]; then
   export HOME=~
 fi
@@ -90,6 +86,8 @@ cd $HOME
 rm -rf flask_iptables_manager
 down_file
 cd flask_iptables_manager
+
+python3 -m pip install -r requirement.txt
 
 # 配置 iptables
 iptables -P INPUT ACCEPT
