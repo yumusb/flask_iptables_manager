@@ -157,7 +157,6 @@ echo -e "你的激活服务运行在 \n${red}http://$ip:$flaskport/ ${none}\n${g
 echo -e "http://$ip:$flaskport/ \n http://$LOCAL_IP:$flaskport/" > url.txt
 
 python3 -c "import pyotp,base64;print(pyotp.totp.TOTP(base64.b32encode('${otptoken}'.strip().encode()).decode()).provisioning_uri(name='admin@youserver.com',issuer_name='${ip}'))" > otp.txt
-
 python3 -c "import pyotp,base64;print(pyotp.totp.TOTP(base64.b32encode('${otptoken}'.strip().encode()).decode()).provisioning_uri(name='admin@youserver.com',issuer_name='${ip}'))"
 
 rm run.sh

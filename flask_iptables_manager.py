@@ -31,6 +31,9 @@ totp = pyotp.TOTP(secret)
 print(pyotp.totp.TOTP(secret).provisioning_uri(name='admin@youserver.com',issuer_name='Your Server'))
 app = Flask(__name__)
 
+if not os.path.exists('otplog'):
+        os.makedirs('otplog')
+
 
 @app.route('/')
 def index():
